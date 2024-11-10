@@ -41,27 +41,27 @@ user_semaphores = {}
 user_tasks = {}
 
 HELP_MESSAGE = """Commands:
-⚪ /retry – Regenerate last bot answer
-⚪ /new – Start new dialog
-⚪ /mode – Select chat mode
-⚪ /settings – Show settings
-⚪ /balance – Show balance
-⚪ /help – Show help
+⚪ /retry – 重新生成上一个机器人答案
+⚪ /new – 开始新对话 
+⚪ /mode – 选择聊天模式
+⚪ /settings – 显示设置
+⚪ /balance – 显示余额
+⚪ /help – 显示帮助
 
-🎨 Generate images from text prompts in <b>👩‍🎨 Artist</b> /mode
-👥 Add bot to <b>group chat</b>: /help_group_chat
-🎤 You can send <b>Voice Messages</b> instead of text
+🎨 根据 <b>👩‍🎨 Artist</b> 中的文本提示生成图像 /mode
+👥 将机器人添加到<b>群聊</b>: /help_group_chat
+🎤 您可以发送<b>语音消息</b>而不是文本
 """
 
-HELP_GROUP_CHAT_MESSAGE = """You can add bot to any <b>group chat</b> to help and entertain its participants!
+HELP_GROUP_CHAT_MESSAGE = """您可以将bot添加到任何<b>组聊天</b>中，以帮助和招待其参与者！
 
-Instructions (see <b>video</b> below):
-1. Add the bot to the group chat
-2. Make it an <b>admin</b>, so that it can see messages (all other rights can be restricted)
-3. You're awesome!
+说明（见下方<b>视频</b>）:
+1. 将机器人添加到群聊中
+2. 使其成为<b> admin </b>，以便它可以看到消息（所有其他权利都可以限制）
+3. 你太棒了！
 
-To get a reply from the bot in the chat – @ <b>tag</b> it or <b>reply</b> to its message.
-For example: "{bot_username} write a poem about Telegram"
+要在聊天中获得机器人的回复 – @<b>标记</b>它或<b>回复</b>其消息。
+例如：“{bot_username} 写一首关于 Telegram 的诗”
 """
 
 
@@ -136,7 +136,7 @@ async def start_handle(update: Update, context: CallbackContext):
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
     db.start_new_dialog(user_id)
 
-    reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with OpenAI API 🤖\n\n"
+    reply_text = "你好，我是人工智能小助手，有什么问题可以咨询我。 🤖\n\n"
     reply_text += HELP_MESSAGE
 
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
@@ -170,7 +170,7 @@ async def retry_handle(update: Update, context: CallbackContext):
 
     dialog_messages = db.get_dialog_messages(user_id, dialog_id=None)
     if len(dialog_messages) == 0:
-        await update.message.reply_text("No message to retry 🤷‍♂️")
+        await update.message.reply_text("没有消息可重试 🤷‍♂️")
         return
 
     last_dialog_message = dialog_messages.pop()
@@ -187,7 +187,7 @@ async def _vision_message_handle_fn(
 
     if current_model != "gpt-4-vision-preview" and current_model != "gpt-4o":
         await update.message.reply_text(
-            "🥲 Images processing is only available for <b>gpt-4-vision-preview</b> and <b>gpt-4o</b> model. Please change your settings in /settings",
+            "🥲 图像处理仅适用于 <b>gpt-4-vision-preview</b> 和 <b>gpt-4o</b> 型号。请在 /settings 中更改您的设置",
             parse_mode=ParseMode.HTML,
         )
         return
@@ -198,7 +198,7 @@ async def _vision_message_handle_fn(
     if use_new_dialog_timeout:
         if (datetime.now() - db.get_user_attribute(user_id, "last_interaction")).seconds > config.new_dialog_timeout and len(db.get_dialog_messages(user_id)) > 0:
             db.start_new_dialog(user_id)
-            await update.message.reply_text(f"Starting new dialog due to timeout (<b>{config.chat_modes[chat_mode]['name']}</b> mode) ✅", parse_mode=ParseMode.HTML)
+            await update.message.reply_text(f"由于超时而开始新的对话框 (<b>{config.chat_modes[chat_mode]['name']}</b> ) ✅", parse_mode=ParseMode.HTML)
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
 
     buf = None
@@ -329,7 +329,7 @@ async def _vision_message_handle_fn(
         return
 
 async def unsupport_message_handle(update: Update, context: CallbackContext, message=None):
-    error_text = f"I don't know how to read files or videos. Send the picture in normal mode (Quick Mode)."
+    error_text = f"我不知道如何读取文件或视频。以正常模式（快速模式）发送图片。"
     logger.error(error_text)
     await update.message.reply_text(error_text)
     return
@@ -367,7 +367,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
         if use_new_dialog_timeout:
             if (datetime.now() - db.get_user_attribute(user_id, "last_interaction")).seconds > config.new_dialog_timeout and len(db.get_dialog_messages(user_id)) > 0:
                 db.start_new_dialog(user_id)
-                await update.message.reply_text(f"Starting new dialog due to timeout (<b>{config.chat_modes[chat_mode]['name']}</b> mode) ✅", parse_mode=ParseMode.HTML)
+                await update.message.reply_text(f"由于超时而开始新对话 (<b>{config.chat_modes[chat_mode]['name']}</b>) ✅", parse_mode=ParseMode.HTML)
         db.set_user_attribute(user_id, "last_interaction", datetime.now())
 
         # in case of CancelledError
@@ -381,7 +381,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
             await update.message.chat.send_action(action="typing")
 
             if _message is None or len(_message) == 0:
-                 await update.message.reply_text("🥲 You sent <b>empty message</b>. Please, try again!", parse_mode=ParseMode.HTML)
+                 await update.message.reply_text("🥲 您发送了<b>空消息</b>。请再试一次！", parse_mode=ParseMode.HTML)
                  return
 
             dialog_messages = db.get_dialog_messages(user_id, dialog_id=None)
@@ -453,9 +453,9 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
         # send message if some messages were removed from the context
         if n_first_dialog_messages_removed > 0:
             if n_first_dialog_messages_removed == 1:
-                text = "✍️ <i>Note:</i> Your current dialog is too long, so your <b>first message</b> was removed from the context.\n Send /new command to start new dialog"
+                text = "✍️ <i>注意：</i>您当前的对话太长，因此您的<b>第一条消息</b>已从上下文中删除。发送 /new 命令以开始新对话"
             else:
-                text = f"✍️ <i>Note:</i> Your current dialog is too long, so <b>{n_first_dialog_messages_removed} first messages</b> were removed from the context.\n Send /new command to start new dialog"
+                text = f"✍️ <i>注意：</i>您当前的对话框太长，因此<b>{n_first_dialog_messages_removed}第一条消息</b>已从上下文中删除。\n 发送 /new 命令以启动新对话框"
             await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
     async with user_semaphores[user_id]:
@@ -493,8 +493,8 @@ async def is_previous_message_not_answered_yet(update: Update, context: Callback
 
     user_id = update.message.from_user.id
     if user_semaphores[user_id].locked():
-        text = "⏳ Please <b>wait</b> for a reply to the previous message\n"
-        text += "Or you can /cancel it"
+        text = "⏳ 请<b>等待</b>回复上一条消息\n"
+        text += "或者你可以 /cancel 取消它"
         await update.message.reply_text(text, reply_to_message_id=update.message.id, parse_mode=ParseMode.HTML)
         return True
     else:
@@ -546,7 +546,7 @@ async def generate_image_handle(update: Update, context: CallbackContext, messag
         image_urls = await openai_utils.generate_images(message, n_images=config.return_n_generated_images, size=config.image_size)
     except openai.error.InvalidRequestError as e:
         if str(e).startswith("Your request was rejected as a result of our safety system"):
-            text = "🥲 Your request <b>doesn't comply</b> with OpenAI's usage policies.\nWhat did you write there, huh?"
+            text = "🥲 您的请求<b>不符合</b> OpenAI 的使用政策。\n您在那里写了什么，是吗？"
             await update.message.reply_text(text, parse_mode=ParseMode.HTML)
             return
         else:
@@ -569,7 +569,7 @@ async def new_dialog_handle(update: Update, context: CallbackContext):
     db.set_user_attribute(user_id, "current_model", "gpt-3.5-turbo")
 
     db.start_new_dialog(user_id)
-    await update.message.reply_text("Starting new dialog ✅")
+    await update.message.reply_text("启动新对话框 ✅")
 
     chat_mode = db.get_user_attribute(user_id, "current_chat_mode")
     await update.message.reply_text(f"{config.chat_modes[chat_mode]['welcome_message']}", parse_mode=ParseMode.HTML)
@@ -590,7 +590,7 @@ async def cancel_handle(update: Update, context: CallbackContext):
 
 def get_chat_mode_menu(page_index: int):
     n_chat_modes_per_page = config.n_chat_modes_per_page
-    text = f"Select <b>chat mode</b> ({len(config.chat_modes)} modes available):"
+    text = f"选择<b>聊天模式</b>（{len(config.chat_modes)} 模式可用）🤖️️"
 
     # buttons
     chat_mode_keys = list(config.chat_modes.keys())
@@ -747,7 +747,7 @@ async def show_balance_handle(update: Update, context: CallbackContext):
     n_generated_images = db.get_user_attribute(user_id, "n_generated_images")
     n_transcribed_seconds = db.get_user_attribute(user_id, "n_transcribed_seconds")
 
-    details_text = "🏷️ Details:\n"
+    details_text = "🏷️ 详情:\n"
     for model_key in sorted(n_used_tokens_dict.keys()):
         n_input_tokens, n_output_tokens = n_used_tokens_dict[model_key]["n_input_tokens"], n_used_tokens_dict[model_key]["n_output_tokens"]
         total_n_used_tokens += n_input_tokens + n_output_tokens
@@ -773,8 +773,8 @@ async def show_balance_handle(update: Update, context: CallbackContext):
     total_n_spent_dollars += voice_recognition_n_spent_dollars
 
 
-    text = f"You spent <b>{total_n_spent_dollars:.03f}$</b>\n"
-    text += f"You used <b>{total_n_used_tokens}</b> tokens\n\n"
+    text = f"您花费了 <b>{total_n_spent_dollars:.03f}$</b>\n"
+    text += f"您使用了 <b>{total_n_used_tokens}</b> tokens\n\n"
     text += details_text
 
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -782,12 +782,12 @@ async def show_balance_handle(update: Update, context: CallbackContext):
 
 async def edited_message_handle(update: Update, context: CallbackContext):
     if update.edited_message.chat.type == "private":
-        text = "🥲 Unfortunately, message <b>editing</b> is not supported"
+        text = "🥲 不幸的是，不支持消息<b>编辑</b>"
         await update.edited_message.reply_text(text, parse_mode=ParseMode.HTML)
 
 
 async def error_handle(update: Update, context: CallbackContext) -> None:
-    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+    logger.error(msg="处理更新时出现异常：", exc_info=context.error)
 
     try:
         # collect error message
@@ -813,12 +813,12 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
 
 async def post_init(application: Application):
     await application.bot.set_my_commands([
-        BotCommand("/new", "Start new dialog"),
-        BotCommand("/mode", "Select chat mode"),
-        BotCommand("/retry", "Re-generate response for previous query"),
-        BotCommand("/balance", "Show balance"),
-        BotCommand("/settings", "Show settings"),
-        BotCommand("/help", "Show help message"),
+        BotCommand("/new", "启动新对话框"),
+        BotCommand("/mode", "选择聊天模式"),
+        BotCommand("/retry", "重新生成先前查询的响应"),
+        BotCommand("/balance", "显示余额"),
+        BotCommand("/settings", "显示设置"),
+        BotCommand("/help", "显示帮助信息"),
     ])
 
 def run_bot() -> None:
